@@ -1,3 +1,4 @@
+import os
 import subprocess
 import time
 from selenium import webdriver
@@ -5,6 +6,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from telethon import TelegramClient, events, sync
+
+# Ensure necessary directories exist
+os.makedirs('sessions', exist_ok=True)
+os.makedirs('querys', exist_ok=True)
 
 # Telegram accounts configuration
 accounts = [
@@ -57,7 +62,7 @@ def extract_init_data_from_webview(webview_link, account_phone):
         init_data = driver.execute_script("return Telegram.WebApp.initData;")
         print(f'Init data for {account_phone}: {init_data}')
 
-        with open('init_data_tokens.txt', 'a') as log:
+        with open('querys/init_data_tokens.txt', 'a') as log:
             log.write(f'{account_phone}: {init_data}\n')
     
     finally:
@@ -94,7 +99,7 @@ def main():
     bot_username = 'YourGameBot'  # Replace with your game bot's username
 
     for account in accounts:
-        client = TelegramClient('session_' + account['phone_number'], account['api_id'], account['api_hash'])
+        client = TelegramClient(f'sessions/session_{account["phone_number"]}', account['api_id'], account['api_hash'])
         webview_link = client.loop.run_until_complete(get_webview_link(client, bot_username))
         
         if webview_link:
